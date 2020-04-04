@@ -37,6 +37,11 @@ function main(){
     update_page()
 }
 
+// Asks the player to rename the village
+function village_name_input(){
+    $('#village_name_modal').modal()
+}
+
 // Update the vilage name to something
 function update_village_name(new_name){
     village_name = new_name;
@@ -119,7 +124,7 @@ function erase_save_data(){
 // Displays alerts to the player when called
 // alert-success, alert-warning, alert-error, alert-info
 function show_alert(message,alerttype) {
-    $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
+    $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + ' alert-dismissable fade show"><a class="close" data-dismiss="alert">x</a><span>'+message+'</span></div>')
     setTimeout(function() { // this will automatically close the alert and remove this if the users doesnt close it
         $("#alertdiv").remove();
     }, 5000);
