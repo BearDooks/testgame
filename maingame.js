@@ -7,7 +7,9 @@ document.title = title // Set HTML title
 var village_name = ""
 
 var player = {
+    max_health: 100,
     health: 100,
+    max_stamina:20,
     stamina: 20
 }
 
@@ -51,13 +53,22 @@ function update_village_name(new_name){
 function gather_resource(item){
     resources[item] = resources[item] + (1 * modifiers[item]);
     document.getElementById(item).innerText = resources[item];
-    player.stamina - 1
+    player.stamina --;
+    update_player_info();
 }
 
 function craft_item(){
     //TODO: Setup Crafting
 }
 
+function update_player_info(){
+    var health_percent = (player.health / player.max_health) * 100;
+    document.getElementById("health_bar").setAttribute("style",("width: " + health_percent + "%"));
+    document.getElementById("health_label").innerText = ("Health: " + player.health + " / " + player.max_health);
+    var stamina_percent = (player.stamina / player.max_stamina) * 100;
+    document.getElementById("stamina_bar").setAttribute("style",("width: " + stamina_percent + "%"));
+    document.getElementById("stamina_label").innerText = ("Stamina: " + player.stamina + " / " + player.max_stamina);
+}
 
 // Used to update all the information on the screen
 function update_page(){
@@ -77,7 +88,8 @@ function fresh_game(){
     }
     items = {};
     buildings = {};
-    player = {health:100, stamina:20}
+    player = {max_health:100,health:100,max_stamina:20,stamina:20};
+    update_player_info();
 }
 
 // Save the game to the browser local storage
@@ -116,6 +128,7 @@ function load_game(){
 function erase_save_data(){
     var confirm_erase_data = confirm("Are you sure you want to do this?\nThis will remove all traces of your save game and restart");
     if (confirm_erase_data == true){
+        console.log("Erasing Data");
         localStorage.removeItem("save");
     }
     fresh_game();
