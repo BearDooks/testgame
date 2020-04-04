@@ -13,17 +13,23 @@
     <body>
         <!-- Nav Bar -->
         <nav class="navbar navbar-light bg-light">
-            <span id='village_name'></span>
+            <span class="navbar-brand mb-0 h1" id='village_name'></span>
         </nav>
 
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-2">
+                    <!-- Player Data -->
+
                 </div>
                 <div class="col-md-10">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <!-- List -->
+                    <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="resources-tab" data-toggle="tab" href="#resources" role="tab" aria-controls="resources" aria-selected="true">Resources</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="craft-tab" data-toggle="tab" href="#craft" role="tab" aria-controls="craft" aria-selected="false">Craft</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="build-tab" data-toggle="tab" href="#build" role="tab" aria-controls="build" aria-selected="false">Build</a>
@@ -43,13 +49,16 @@
                             <p>Ore: <span id='ore'></span></p>
                             <p>Palm: <span id='palm'></span></p>
                         </div>
+                        <div class="tab-pane fade" id="craft" role="tabpanel" aria-labelledby="craft-tab">
+                            ...
+                        </div>
                         <div class="tab-pane fade" id="build" role="tabpanel" aria-labelledby="build-tab">
                             ...
                         </div>
                         <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-                            <button onclick="save_game()">Save Game</button>
-                            <button onclick="load_game()">Load Game</button>
-                            <button onclick="erase_save_data()">Erase Data</button>
+                            <button type="button" class="btn btn-info" onclick="save_game()">Save Game</button>
+                            <button type="button" class="btn btn-info" onclick="load_game()">Load Game</button>
+                            <button type="button" class="btn btn-danger" onclick="erase_save_data()">Erase Save Data</button>
                         </div>
                     </div>
                 </div>
@@ -60,6 +69,25 @@
                 </div>
                 <div class="col-md-4">
                     <div id="alert_placeholder"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Village Name Modal-->
+        <!-- Modal -->
+        <div class="modal fade" id="village_name_modal" tabindex="-1" role="dialog" aria-labelledby="village_name_modal_label" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="village_name_modal_label">Rename The Village!</h5>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
                 </div>
             </div>
         </div>
