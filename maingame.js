@@ -6,6 +6,11 @@ document.title = title // Set HTML title
 // Variables
 var village_name = ""
 
+var day = {
+    daynumber:1,
+    weather:"sunny"
+}
+
 var player = {
     max_health: 100,
     health: 100,
@@ -16,14 +21,13 @@ var player = {
 var resources = {
     palm:0,
     wood:0,
-    stone:0,
-    ore:0
+    stone:0
 }
 
 var modifiers = {
+    palm:1,
     wood:1,
-    stone:1,
-    ore:1
+    stone:1
 }
 
 var items = {
@@ -51,14 +55,54 @@ function update_village_name(new_name){
 }
 
 function gather_resource(item){
-    resources[item] = resources[item] + (1 * modifiers[item]);
-    document.getElementById(item).innerText = resources[item];
-    player.stamina --;
+    if (item in resources){
+        resources[item] = resources[item] + (1 * modifiers[item]);
+        document.getElementById(item).innerText = resources[item];
+        burn_player_stamina(1)
+    }
+    else{
+        console.log(item + " is not a resouce we track....cheater")
+    }
+    
+}
+
+function heal_player(amount){
+    player.health = (player.health + amount);
+    if (player.health > player.max_health){
+        player.health = player.max_health
+    }
+}
+
+// Burn player stamina, for each stamina you go below 0, lose 2 health
+function burn_player_stamina(amount){
+    for (let x = 0; x < amount; x++){
+        player.stamina --;
+        if (player.stamina < 0){
+            player.stamina = 0;
+            player.health = (player.health - 2);
+        }
+    }
+        update_player_info();
+}
+
+function craft_item(item){
+    items[item] = 1
+}
+
+// Sleep heals the player, refills stamina, and advances the day by 1
+function sleep(){
+    heal_player(5);
+    player.stamina = player.max_stamina;
+    day.daynumber ++;
+    for (var key in day) {
+        document.getElementById(key).innerText = day[key];
+    }
     update_player_info();
 }
 
-function craft_item(){
-    //TODO: Setup Crafting
+// Pick some random weather for the next day
+function random_weather(){
+
 }
 
 function update_player_info(){
@@ -86,6 +130,7 @@ function fresh_game(){
     for (var key in modifiers) {
         modifiers[key] = 1
     }
+    day = {daynumber:1, weather:'Sunny'};
     items = {};
     buildings = {};
     player = {max_health:100,health:100,max_stamina:20,stamina:20};
@@ -96,6 +141,7 @@ function fresh_game(){
 function save_game(){
     var save = {
         village_name: village_name,
+        day, day,
         resources: resources,
         modifiers: modifiers,
         items: items,
@@ -115,6 +161,7 @@ function load_game(){
     else {
         var savegame = JSON.parse(localStorage.getItem("save"));
         if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
+        if (typeof savegame.day !== "undefined") day = savegame.day;
         if (typeof savegame.resources !== "undefined") resources = savegame.resources;
         if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
         if (typeof savegame.items !== "undefined") items = savegame.items;
@@ -132,6 +179,11 @@ function erase_save_data(){
         localStorage.removeItem("save");
     }
     fresh_game();
+}
+
+// Show the FAQ modal of the game
+function show_faq(){
+    $('#faq_modal').modal()
 }
 
 // Displays alerts to the player when called
