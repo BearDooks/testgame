@@ -34,6 +34,11 @@
                     <hr><center><strong>Island Info:</strong></center><hr>
                     <center>Day: <span id="daynumber">1</span></center>
                     <center>Weather: <span id="weather">Sunny</span></center>
+                    <!-- Resource Data -->
+                    <hr><center><strong>Resource Info:</strong></center><hr>
+                    <center>Palm Leaves: <span id='palm'></span></center>
+                    <center>Wood: <span id='wood'></span></center>
+                    <center>Stones: <span id='stone'></span></center>
                 </div>
                 <div class="col-md-10">
                     <!-- List -->
@@ -56,14 +61,10 @@
                             <button onclick="gather_resource('palm')">Gather Palm Leaves</button>
                             <button onclick="gather_resource('wood')">Gather Wood</button>
                             <button onclick="gather_resource('stone')">Gather Stone</button>
-
-                            <p>Palm Leaves: <span id='palm'></span></p>
-                            <p>Wood: <span id='wood'></span></p>
-                            <p>Stone: <span id='stone'></span></p>
                             
                         </div>
                         <div class="tab-pane fade" id="craft" role="tabpanel" aria-labelledby="craft-tab">
-                            ...
+                            <div id="craft_placeholder"></div>
                         </div>
                         <div class="tab-pane fade" id="build" role="tabpanel" aria-labelledby="build-tab">
                             ...
