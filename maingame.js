@@ -31,12 +31,20 @@ var modifiers = {
 }
 
 var items = {
-
+    hands:1
 }
 
 var buildings = {
 
 }
+
+// List of craftable items
+// Name, palm, wood, stone, previous item needed
+const craftable = [
+    {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands" },
+    {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"},
+    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"}
+]
 
 // Main function called every 1 second
 function main(){
@@ -63,7 +71,6 @@ function gather_resource(item){
     else{
         console.log(item + " is not a resouce we track....cheater")
     }
-    
 }
 
 function heal_player(amount){
@@ -86,7 +93,55 @@ function burn_player_stamina(amount){
 }
 
 function craft_item(item){
-    items[item] = 1
+    var array = craftable;
+    var property = "id";
+    var property_value = item;
+
+    for (var i=0; i < array.length; i++){
+        if (array[i][property] == property_value)
+        var returned = array[i];
+    }
+
+    if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in items){
+        resources.palm = resources.palm - returned.palm_cost;
+        resources.wood = resources.wood - returned.wood_cost;
+        resources.stone = resources.stone - returned.stone_cost;
+        items[returned.item_name] = 1;
+        update_crafting();
+    }
+    else{
+        console.log("I did not make it")
+    }
+}
+
+// Used to update crafting buttons
+function update_crafting (){
+    document.getElementById("craft_placeholder").innerHTML = ""
+    var returned_array = []
+    for (var i=0; i < craftable.length; i++){
+        if(craftable[i].item_name in items){
+        }
+        else{
+            if (craftable[i].previous_item in items){
+                returned_array.push(craftable[i]);
+            }
+        }
+    }
+    for (var i = 0; i < returned_array.length; i++) {
+        var item_name = returned_array[i].item_name;
+        var item_id = returned_array[i].id;
+        var item_cost = "- "
+        if (returned_array[i].palm_cost > 0){
+            item_cost = item_cost + " Palm: " + returned_array[i].palm_cost
+        }
+        if (returned_array[i].wood_cost > 0){
+            item_cost = item_cost + " Wood: " + returned_array[i].wood_cost
+        }
+        if (returned_array[i].stone_cost > 0){
+            item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
+        }
+        document.getElementById("craft_placeholder").innerHTML += "<button onclick=craft_item('" + item_id + "')>" + item_name + " " + item_cost + "</button>";
+      }
 }
 
 // Sleep heals the player, refills stamina, and advances the day by 1
@@ -131,10 +186,11 @@ function fresh_game(){
         modifiers[key] = 1
     }
     day = {daynumber:1, weather:'Sunny'};
-    items = {};
+    items = {hands:1};
     buildings = {};
     player = {max_health:100,health:100,max_stamina:20,stamina:20};
     update_player_info();
+    update_crafting();
 }
 
 // Save the game to the browser local storage
