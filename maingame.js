@@ -43,7 +43,8 @@ var buildings = {
 const craftable = [
     {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands" },
     {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"},
-    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"}
+    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"},
+    {id:"leanto", item_name:"Leanto", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"Palm Bed"}
 ]
 
 // Main function called every 1 second
@@ -62,6 +63,7 @@ function update_village_name(new_name){
     document.getElementById('village_name').innerText = village_name;
 }
 
+// Used to gather resources from the island
 function gather_resource(item){
     if (item in resources){
         resources[item] = resources[item] + (1 * modifiers[item]);
@@ -73,6 +75,7 @@ function gather_resource(item){
     }
 }
 
+// Used to heal the player by some amount passed to it
 function heal_player(amount){
     player.health = (player.health + amount);
     if (player.health > player.max_health){
@@ -82,7 +85,7 @@ function heal_player(amount){
 
 // Burn player stamina, for each stamina you go below 0, lose 2 health
 function burn_player_stamina(amount){
-    for (let x = 0; x < amount; x++){
+    for (var i = 0; i < amount; i++){
         player.stamina --;
         if (player.stamina < 0){
             player.stamina = 0;
@@ -92,6 +95,7 @@ function burn_player_stamina(amount){
         update_player_info();
 }
 
+// Used to craft an item from the list. 
 function craft_item(item){
     var array = craftable;
     var property = "id";
@@ -116,8 +120,8 @@ function craft_item(item){
 
 // Used to update crafting buttons
 function update_crafting (){
-    document.getElementById("craft_placeholder").innerHTML = ""
-    var returned_array = []
+    document.getElementById("craft_placeholder").innerHTML = "";
+    var returned_array = [];
     for (var i=0; i < craftable.length; i++){
         if(craftable[i].item_name in items){
         }
@@ -141,6 +145,13 @@ function update_crafting (){
             item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
         }
         document.getElementById("craft_placeholder").innerHTML += "<button onclick=craft_item('" + item_id + "')>" + item_name + " " + item_cost + "</button>";
+      }
+
+      document.getElementById("currentitems").innerHTML = ""
+      for (var key in items){
+          if(key != "hands"){
+            document.getElementById("currentitems").innerHTML += "<li>" + key + "</li>";
+          }
       }
 }
 
@@ -169,7 +180,7 @@ function update_player_info(){
     document.getElementById("stamina_label").innerText = ("Stamina: " + player.stamina + " / " + player.max_stamina);
 }
 
-// Used to update all the information on the screen
+// Used to update all the information on the screen for the player
 function update_page(){
     for (var key in resources) {
         document.getElementById(key).innerText = resources[key];
@@ -196,8 +207,9 @@ function fresh_game(){
 // Save the game to the browser local storage
 function save_game(){
     var save = {
+        player: player,
         village_name: village_name,
-        day, day,
+        day: day,
         resources: resources,
         modifiers: modifiers,
         items: items,
@@ -216,6 +228,7 @@ function load_game(){
     }
     else {
         var savegame = JSON.parse(localStorage.getItem("save"));
+        if (typeof savegame.player !== "undefined") player = savegame.player;
         if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
         if (typeof savegame.day !== "undefined") day = savegame.day;
         if (typeof savegame.resources !== "undefined") resources = savegame.resources;
@@ -223,7 +236,10 @@ function load_game(){
         if (typeof savegame.items !== "undefined") items = savegame.items;
         if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
 
-        update_village_name(village_name)
+        update_village_name(village_name);
+        update_crafting();
+        update_player_info();
+        update_page();
     }
 }
 
@@ -251,6 +267,7 @@ function show_alert(message,alerttype) {
     }, 5000);
 }
 
+// Recurring functions
 setInterval(main, 1000); // Run main every 1 second
 setInterval(save_game,300000); // Run save_game every 5 min
 
