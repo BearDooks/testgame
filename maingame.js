@@ -41,14 +41,14 @@ var buildings = {
 // List of craftable items
 // Name, palm, wood, stone, previous item needed
 const craftable = [
-    {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands" },
-    {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"},
-    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed"},
+    {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands", tooltip:"A simple bed to sleep on" },
+    {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", tooltip:"Pants made from palm leaves"},
+    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", tooltip:"A shirt made from palm leaves, protects you from the sun"},
     
 ]
 
 const buildable = [
-    {id:"leanto", item_name:"Leanto", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"island"}
+    {id:"leanto", item_name:"Leanto", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"island", tooltip:"A simple leanto to sleep in"}
 ]
 
 const weather = [
@@ -58,6 +58,7 @@ const weather = [
 // Main function called every 1 second
 function main(){
     update_page()
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 // Asks the player to rename the village
@@ -115,6 +116,7 @@ function build(item){
     }
 
     if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in buildings){
+        $('#' + property_value).tooltip('hide')
         resources.palm = resources.palm - returned.palm_cost;
         resources.wood = resources.wood - returned.wood_cost;
         resources.stone = resources.stone - returned.stone_cost;
@@ -138,6 +140,7 @@ function update_building(){
     for (var i = 0; i < returned_array.length; i++) {
         var item_name = returned_array[i].item_name;
         var item_id = returned_array[i].id;
+        var item_tooltip = returned_array[i].tooltip;
         var item_cost = "- "
         if (returned_array[i].palm_cost > 0){
             item_cost = item_cost + " Palm: " + returned_array[i].palm_cost
@@ -148,7 +151,8 @@ function update_building(){
         if (returned_array[i].stone_cost > 0){
             item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
         }
-        document.getElementById("build_placeholder").innerHTML += "<button type='button' class='btn btn-info' onclick=build('" + item_id + "')>" + item_name + " " + item_cost + "</button>";
+        // data-toggle="tooltip" data-placement="right" title="Tooltip on right"
+        document.getElementById("build_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=build('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
       }
 
       document.getElementById("currentbuildings").innerHTML = ""
@@ -171,6 +175,7 @@ function craft_item(item){
     }
 
     if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in items){
+        $('#' + property_value).tooltip('hide')
         resources.palm = resources.palm - returned.palm_cost;
         resources.wood = resources.wood - returned.wood_cost;
         resources.stone = resources.stone - returned.stone_cost;
@@ -194,6 +199,7 @@ function update_crafting (){
     for (var i = 0; i < returned_array.length; i++) {
         var item_name = returned_array[i].item_name;
         var item_id = returned_array[i].id;
+        var item_tooltip = returned_array[i].tooltip;
         var item_cost = "- "
         if (returned_array[i].palm_cost > 0){
             item_cost = item_cost + " Palm: " + returned_array[i].palm_cost
@@ -204,7 +210,7 @@ function update_crafting (){
         if (returned_array[i].stone_cost > 0){
             item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
         }
-        document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' onclick=craft_item('" + item_id + "')>" + item_name + " " + item_cost + "</button>";
+        document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=craft_item('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
       }
 
       document.getElementById("currentitems").innerHTML = ""
