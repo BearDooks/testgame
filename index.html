@@ -23,7 +23,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-2">
-                                        <!-- Player Data -->
+                    <!-- Player Data -->
                     <hr><center><strong>Player Info:</strong></center><hr>
                     <center id="health_label">Health: 100/100</center>
                     <div class="progress">
@@ -32,7 +32,8 @@
                     <center id="stamina_label">Stamina: 20/20</center>
                     <div class="progress">
                         <div id="stamina_bar" class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="20"></div>
-                    </div>
+                    </div><br>
+                    <center><button type="button" class="btn btn-info" onclick="sleep()">Sleep</button></center>
                     <br>
                     <!-- Island Data -->
                     <hr><center><strong>Island Info:</strong></center><hr>
@@ -62,16 +63,17 @@
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="resources" role="tabpanel" aria-labelledby="resources-tab">
-                            <button onclick="gather_resource('palm')">Gather Palm Leaves</button>
-                            <button onclick="gather_resource('wood')">Gather Wood</button>
-                            <button onclick="gather_resource('stone')">Gather Stone</button>
+                            <hr>
+                            <button type="button" class="btn btn-success" onclick="gather_resource('palm')">Gather Palm Leaves</button>
+                            <button type="button" class="btn btn-success" onclick="gather_resource('wood')">Gather Wood</button>
+                            <button type="button" class="btn btn-success" onclick="gather_resource('stone')">Gather Stone</button>
                             
                         </div>
                         <div class="tab-pane fade" id="craft" role="tabpanel" aria-labelledby="craft-tab">
                             <div class="row">
                                 <div class="col-md-5">
                                     <hr><center><strong>Craftable Items:</strong></center><hr>
-                                    <div id="craft_placeholder"></div>
+                                    <div class="btn-group-vertical" role="group" id="craft_placeholder"></div>
                                 </div>
                                 <div class="col-md-5">
                                     <hr><center><strong>Current Items:</strong></center><hr>
@@ -82,9 +84,21 @@
                             </div>
                         </div>
                         <div class="tab-pane fade" id="build" role="tabpanel" aria-labelledby="build-tab">
-                            ...
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <hr><center><strong>Blueprints:</strong></center><hr>
+                                    <div class="btn-group-vertical" role="group" id="build_placeholder"></div>
+                                </div>
+                                <div class="col-md-5">
+                                    <hr><center><strong>Current Buildings:</strong></center><hr>
+                                    <ul>
+                                        <span id='currentbuildings'></span>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                            <hr>
                             <button type="button" class="btn btn-info" onclick="save_game()">Save Game</button>
                             <button type="button" class="btn btn-info" onclick="load_game()">Load Game</button>
                             <button type="button" class="btn btn-danger" onclick="erase_save_data()">Erase Save Data</button>
@@ -94,7 +108,7 @@
             </div>
             <div class="row fixed-bottom">
                 <div class="col-md-8">
-
+                    <div id="info_placeholder"></div>
                 </div>
                 <div class="col-md-4">
                     <div id="alert_placeholder"></div>
