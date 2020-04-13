@@ -39,7 +39,7 @@ var buildings = {
 }
 
 // List of craftable items
-// Name, palm, wood, stone, previous item needed
+// ID, name, palm, wood, stone, previous item needed, tooltip to be displayed
 const craftable = [
     {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands", tooltip:"A simple bed to sleep on" },
     {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", tooltip:"Pants made from palm leaves"},
@@ -47,6 +47,8 @@ const craftable = [
     
 ]
 
+// List of buildings that can be constructed
+// ID, name, palm, wood, stone, previous item needed, tooltip to be displayed
 const buildable = [
     {id:"leanto", item_name:"Leanto", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"island", tooltip:"A simple leanto to sleep in"}
 ]
@@ -85,7 +87,7 @@ function gather_resource(item){
 }
 
 // Used to heal the player by some amount passed to it
-function heal_player(amount){
+function change_player_health(amount){
     player.health = (player.health + amount);
     if (player.health > player.max_health){
         player.health = player.max_health
@@ -98,7 +100,7 @@ function burn_player_stamina(amount){
         player.stamina --;
         if (player.stamina < 0){
             player.stamina = 0;
-            player.health = (player.health - 2);
+            change_player_health(-2);
         }
     }
         update_player_info();
@@ -223,12 +225,10 @@ function update_crafting (){
 
 // Sleep heals the player, refills stamina, and advances the day by 1
 function sleep(){
-    heal_player(5);
+    change_player_health(5);
     player.stamina = player.max_stamina;
     day.daynumber ++;
-    for (var key in day) {
-        document.getElementById(key).innerText = day[key];
-    }
+    document.getElementById("daynumber").innerText = day.daynumber;
     random_weather();
     update_player_info();
 }
@@ -238,12 +238,12 @@ function random_weather(){
     var new_weather = weather[Math.floor(Math.random()*weather.length)];
     document.getElementById("weather").innerText = new_weather.id;
     if (!(new_weather.item_needed in items)){
-        player.stamina = player.stamina - new_weather.negative_stamina_effect;
+        burn_player_stamina(new_weather.negative_stamina_effect);
         show_info("Today is " + new_weather.id + " And you don't have a " + new_weather.item_needed + " so you lost " + new_weather.negative_stamina_effect + " Stamina")
     }
     if (!(new_weather.building_needed in buildings)){
-        player.health = player.health - new_weather.negative_health_effect;
-        show_info("Today is " + new_weather.id + " And you don't have a " + new_weather.building_needed + " so you lost " + new_weather.negative_health_effect + " Stamina")
+        change_player_health(-new_weather.negative_health_effect);
+        show_info("Today is " + new_weather.id + " And you don't have a " + new_weather.building_needed + " so you lost " + new_weather.negative_health_effect + " Health")
     }
 }
 
@@ -276,6 +276,8 @@ function fresh_game(){
     items = {hands:1};
     buildings = {island:1};
     player = {max_health:100,health:100,max_stamina:20,stamina:20};
+    document.getElementById("daynumber").innerText = day.daynumber;
+    document.getElementById("weather").innerText = day.weather;
     update_player_info();
     update_crafting();
     update_building();
@@ -335,6 +337,11 @@ function erase_save_data(){
 // Show the FAQ modal of the game
 function show_faq(){
     $('#faq_modal').modal()
+}
+
+// Show the game over screen
+function gameover(){
+    $('#gameover_modal').modal()
 }
 
 // Displays alerts to the player when called
