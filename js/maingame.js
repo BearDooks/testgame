@@ -369,23 +369,34 @@ function import_game_modal(){
 // Import game data to be played again, needs some validation checking built into it
 // TODO: VALIDATION OF IMPORT
 function import_game(){
+    var import_error = false;
     var user_input = document.getElementById("import_game_data").value;
-    var data = window.atob(user_input);
-    var savegame = JSON.parse(data)
+    try {
+        var data = window.atob(user_input);
+    }
+    catch(err){
+        import_error = true;
+    }
+    if (import_error == false){
+        var savegame = JSON.parse(data)
 
-    if (typeof savegame.player !== "undefined") player = savegame.player;
-    if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
-    if (typeof savegame.day !== "undefined") day = savegame.day;
-    if (typeof savegame.resources !== "undefined") resources = savegame.resources;
-    if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
-    if (typeof savegame.items !== "undefined") items = savegame.items;
-    if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
+        if (typeof savegame.player !== "undefined") player = savegame.player;
+        if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
+        if (typeof savegame.day !== "undefined") day = savegame.day;
+        if (typeof savegame.resources !== "undefined") resources = savegame.resources;
+        if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
+        if (typeof savegame.items !== "undefined") items = savegame.items;
+        if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
 
-    update_village_name(village_name);
-    update_craft_build();
-    update_player_info();
-    update_page();
-    console.log("Loaded Game")
+        update_village_name(village_name);
+        update_craft_build();
+        update_player_info();
+        update_page();
+        console.log("Loaded Game")
+    }
+    else{
+        show_alert("Error Importing", "alert-danger")
+    }
 }
 
 // Remove player save data, warns user before you do this
