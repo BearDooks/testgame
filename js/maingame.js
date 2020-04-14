@@ -31,30 +31,37 @@ var modifiers = {
 }
 
 var items = {
-    hands:1
+    none:1
 }
 
 var buildings = {
-    island:1
+    none:1
 }
 
 // List of craftable items
-// ID, name, palm, wood, stone, previous item needed, tooltip to be displayed
+// ID, name, palm, wood, stone, previous items needed, tooltip to be displayed
 const craftable = [
-    {id:"palmbed", item_name:"Palm Bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"hands", tooltip:"A simple bed to sleep on" },
-    {id:"palmpants", item_name:"Palm Pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", tooltip:"Pants made from palm leaves"},
-    {id:"palmshirt", item_name:"Palm Shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", tooltip:"A shirt made from palm leaves, protects you from the sun"},
-    
+    {id:"palmbed", item_name:"Palm Bed", item_type:"bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple bed to sleep on" },
+    {id:"palmpants", item_name:"Palm Pants", item_type:"pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"Pants made from palm leaves"},
+    {id:"palmshirt", item_name:"Palm Shirt", item_type:"shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"A shirt made from palm leaves, protects you from the sun"},
+    {id:"stoneaxe", item_name:"Stone Axe", item_type:"axe", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"An axe made with a stone"},
 ]
 
 // List of buildings that can be constructed
-// ID, name, palm, wood, stone, previous item needed, tooltip to be displayed
+// ID, name, palm, wood, stone, previous items needed, tooltip to be displayed
 const buildable = [
-    {id:"leanto", item_name:"Leanto", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"island", tooltip:"A simple leanto to sleep in"}
+    {id:"leanto", item_name:"Leanto", item_type:"shelter", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple leanto to sleep in, protects you from some weather"},
+    {id:"simplecraftbench", item_name:"Simple Craft Bench", item_type:"crafting", palm_cost:0, wood_cost:20, stone_cost:0, previous_item:"none", previous_building:"Leanto", tooltip:"A simple craft bench to make simple tools"},
 ]
 
 const weather = [
-    {key:0, id:"Very Sunny", item_needed:"Palm Shirt", building_needed:"island", negative_health_effect:0, negative_stamina_effect:2}
+    {key:0, id:"Sunny", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:1, id:"Very Sunny", item_needed:"Palm Shirt", building_needed:"none", negative_health_effect:0, negative_stamina_effect:2},
+    {key:2, id:"Cloudy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:3, id:"Overcast", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:4, id:"Windy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:5, id:"Foggy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:6, id:"Raining", item_needed:"none", building_needed:"Leanto", negative_health_effect:10, negative_stamina_effect:0}
 ]
 
 // Main function called every 1 second
@@ -92,6 +99,9 @@ function change_player_health(amount){
     if (player.health > player.max_health){
         player.health = player.max_health
     }
+    if (player.health <= 0){
+        gameover()
+    }
 }
 
 // Burn player stamina, for each stamina you go below 0, lose 2 health
@@ -117,25 +127,80 @@ function build(item){
         var returned = array[i];
     }
 
-    if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in buildings){
+    if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in items && returned.previous_building in buildings){
         $('#' + property_value).tooltip('hide')
         resources.palm = resources.palm - returned.palm_cost;
         resources.wood = resources.wood - returned.wood_cost;
         resources.stone = resources.stone - returned.stone_cost;
         buildings[returned.item_name] = 1;
-        update_building();
+        update_craft_build();
     }
     else{
         console.log("I did not build it")
     }
 }
 
-// Used to update build buttons
-function update_building(){
+// Used to craft an item from the list. 
+function craft_item(item){
+    var array = craftable;
+    var property = "id";
+    var property_value = item;
+
+    for (var i=0; i < array.length; i++){
+        if (array[i][property] == property_value)
+        var returned = array[i];
+    }
+
+    if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in items && returned.previous_building in buildings){
+        $('#' + property_value).tooltip('hide')
+        resources.palm = resources.palm - returned.palm_cost;
+        resources.wood = resources.wood - returned.wood_cost;
+        resources.stone = resources.stone - returned.stone_cost;
+        items[returned.item_name] = 1;
+        update_craft_build();
+    }
+    else{
+        console.log("I did not make it")
+    }
+}
+
+// Used to update crafting buttons
+function update_craft_build(){
+    document.getElementById("craft_placeholder").innerHTML = "";
+    var returned_array = [];
+    for (var i=0; i < craftable.length; i++){
+        if(!(craftable[i].item_name in items) && (craftable[i].previous_item in items) && (craftable[i].previous_building in buildings)){
+            returned_array.push(craftable[i]);
+        }
+    }
+    for (var i = 0; i < returned_array.length; i++) {
+        var item_name = returned_array[i].item_name;
+        var item_id = returned_array[i].id;
+        var item_tooltip = returned_array[i].tooltip;
+        var item_cost = "- "
+        if (returned_array[i].palm_cost > 0){
+            item_cost = item_cost + " Palm: " + returned_array[i].palm_cost
+        }
+        if (returned_array[i].wood_cost > 0){
+            item_cost = item_cost + " Wood: " + returned_array[i].wood_cost
+        }
+        if (returned_array[i].stone_cost > 0){
+            item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
+        }
+        document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=craft_item('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
+    }
+
+    document.getElementById("currentitems").innerHTML = ""
+    for (var key in items){
+        if(key != "none"){
+        document.getElementById("currentitems").innerHTML += "<li>" + key + "</li>";
+        }
+    }
+
     document.getElementById("build_placeholder").innerHTML = "";
     var returned_array = [];
     for (var i=0; i < buildable.length; i++){
-        if(!(buildable[i].item_name in buildings) && (buildable[i].previous_item in buildings)){
+        if(!(buildable[i].item_name in buildings) && (buildable[i].previous_item in items) && (buildable[i].previous_building in buildings)){
             returned_array.push(buildable[i]);
         }
     }
@@ -155,72 +220,15 @@ function update_building(){
         }
         // data-toggle="tooltip" data-placement="right" title="Tooltip on right"
         document.getElementById("build_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=build('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
-      }
-
-      document.getElementById("currentbuildings").innerHTML = ""
-      for (var key in buildings){
-          if(key != "island"){
-            document.getElementById("currentbuildings").innerHTML += "<li>" + key + "</li>";
-          }
-      }
-}
-
-// Used to craft an item from the list. 
-function craft_item(item){
-    var array = craftable;
-    var property = "id";
-    var property_value = item;
-
-    for (var i=0; i < array.length; i++){
-        if (array[i][property] == property_value)
-        var returned = array[i];
     }
 
-    if (returned.palm_cost <= resources.palm && returned.wood_cost <= resources.wood && returned.stone_cost <= resources.stone && returned.previous_item in items){
-        $('#' + property_value).tooltip('hide')
-        resources.palm = resources.palm - returned.palm_cost;
-        resources.wood = resources.wood - returned.wood_cost;
-        resources.stone = resources.stone - returned.stone_cost;
-        items[returned.item_name] = 1;
-        update_crafting();
+    document.getElementById("currentbuildings").innerHTML = ""
+    for (var key in buildings){
+        if(key != "none"){
+        document.getElementById("currentbuildings").innerHTML += "<li>" + key + "</li>";
+        }
     }
-    else{
-        console.log("I did not make it")
-    }
-}
 
-// Used to update crafting buttons
-function update_crafting (){
-    document.getElementById("craft_placeholder").innerHTML = "";
-    var returned_array = [];
-    for (var i=0; i < craftable.length; i++){
-        if(!(craftable[i].item_name in items) && (craftable[i].previous_item in items)){
-            returned_array.push(craftable[i]);
-        }
-    }
-    for (var i = 0; i < returned_array.length; i++) {
-        var item_name = returned_array[i].item_name;
-        var item_id = returned_array[i].id;
-        var item_tooltip = returned_array[i].tooltip;
-        var item_cost = "- "
-        if (returned_array[i].palm_cost > 0){
-            item_cost = item_cost + " Palm: " + returned_array[i].palm_cost
-        }
-        if (returned_array[i].wood_cost > 0){
-            item_cost = item_cost + " Wood: " + returned_array[i].wood_cost
-        }
-        if (returned_array[i].stone_cost > 0){
-            item_cost = item_cost + " Stone: " + returned_array[i].stone_cost
-        }
-        document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=craft_item('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
-      }
-
-      document.getElementById("currentitems").innerHTML = ""
-      for (var key in items){
-          if(key != "hands"){
-            document.getElementById("currentitems").innerHTML += "<li>" + key + "</li>";
-          }
-      }
 }
 
 // Sleep heals the player, refills stamina, and advances the day by 1
@@ -273,14 +281,13 @@ function fresh_game(){
         modifiers[key] = 1
     }
     day = {daynumber:1, weather:'Sunny'};
-    items = {hands:1};
-    buildings = {island:1};
+    items = {none:1};
+    buildings = {none:1};
     player = {max_health:100,health:100,max_stamina:20,stamina:20};
     document.getElementById("daynumber").innerText = day.daynumber;
     document.getElementById("weather").innerText = day.weather;
     update_player_info();
-    update_crafting();
-    update_building();
+    update_craft_build();
 }
 
 // Save the game to the browser local storage
@@ -316,12 +323,53 @@ function load_game(){
         if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
 
         update_village_name(village_name);
-        update_crafting();
-        update_building();
+        update_craft_build();
         update_player_info();
         update_page();
         console.log("Loaded Game")
     }
+}
+
+function export_game(){
+    var data = {
+        player: player,
+        village_name: village_name,
+        day: day,
+        resources: resources,
+        modifiers: modifiers,
+        items: items,
+        buildings: buildings
+    }
+    data = JSON.stringify(data);
+    exported_data = window.btoa(data);
+    document.getElementById("export_game_data").innerText = exported_data
+    $('#export_game_modal').modal()
+}
+
+function import_game_modal(){
+    $('#import_game_modal').modal()
+}
+
+// Import game data to be played again, needs some validation checking built into it
+// TODO: VALIDATION OF IMPORT
+function import_game(){
+    var user_input = document.getElementById("import_game_data").value;
+    var data = window.atob(user_input);
+    var savegame = JSON.parse(data)
+
+    if (typeof savegame.player !== "undefined") player = savegame.player;
+    if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
+    if (typeof savegame.day !== "undefined") day = savegame.day;
+    if (typeof savegame.resources !== "undefined") resources = savegame.resources;
+    if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
+    if (typeof savegame.items !== "undefined") items = savegame.items;
+    if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
+
+    update_village_name(village_name);
+    update_craft_build();
+    update_player_info();
+    update_page();
+    console.log("Loaded Game")
 }
 
 // Remove player save data, warns user before you do this
@@ -341,6 +389,7 @@ function show_faq(){
 
 // Show the game over screen
 function gameover(){
+    console.log("Game Over")
     $('#gameover_modal').modal()
 }
 
@@ -360,6 +409,13 @@ function show_info(message,alerttype = "alert-warning") {
     setTimeout(function() { // this will automatically close the alert and remove this if the users doesnt close it
         $("#infodiv").remove();
     }, 5000);
+}
+
+function cheat(){
+    resources.palm = 1000;
+    resources.wood = 1000;
+    resources.stone = 1000;
+    update_page();
 }
 
 
