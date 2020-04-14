@@ -8,4 +8,4 @@ This is a game where you make decisions for the player on the island of what to 
 
 ### Want to help?
 
-I am always looking for help, please feel free to fork and contribute to the game. I will try to keep a running list of issues that next to be fixed.
+If you would like to helkp contribute, feel free to fork this repo and make a PR for any bug fixes, documentation changes, or enhancements. Everything is being tracked in issues and linked to the projects section.

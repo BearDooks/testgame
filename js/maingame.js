@@ -54,14 +54,15 @@ const buildable = [
     {id:"simplecraftbench", item_name:"Simple Craft Bench", item_type:"crafting", palm_cost:0, wood_cost:20, stone_cost:0, previous_item:"none", previous_building:"Leanto", tooltip:"A simple craft bench to make simple tools"},
 ]
 
+// List of different weather that can happen
 const weather = [
-    {key:0, id:"Sunny", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
-    {key:1, id:"Very Sunny", item_needed:"Palm Shirt", building_needed:"none", negative_health_effect:0, negative_stamina_effect:2},
-    {key:2, id:"Cloudy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
-    {key:3, id:"Overcast", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
-    {key:4, id:"Windy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
-    {key:5, id:"Foggy", item_needed:"none", building_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
-    {key:6, id:"Raining", item_needed:"none", building_needed:"Leanto", negative_health_effect:10, negative_stamina_effect:0}
+    {key:0, id:"Sunny", item_type_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:1, id:"Very Sunny", item_type_needed:"shirt", negative_health_effect:0, negative_stamina_effect:2},
+    {key:2, id:"Cloudy", item_type_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:3, id:"Overcast", item_type_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:4, id:"Windy", item_type_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:5, id:"Foggy", item_type_needed:"none", negative_health_effect:0, negative_stamina_effect:0},
+    {key:6, id:"Raining", item_type_needed:"shelter", negative_health_effect:10, negative_stamina_effect:5}
 ]
 
 // Main function called every 1 second
@@ -245,16 +246,27 @@ function sleep(){
 function random_weather(){
     var new_weather = weather[Math.floor(Math.random()*weather.length)];
     document.getElementById("weather").innerText = new_weather.id;
-    if (!(new_weather.item_needed in items)){
-        burn_player_stamina(new_weather.negative_stamina_effect);
-        show_info("Today is " + new_weather.id + " And you don't have a " + new_weather.item_needed + " so you lost " + new_weather.negative_stamina_effect + " Stamina")
+    if (!(new_weather.item_type_needed in items) && !(new_weather.item_type_needed in buildings)){
+        if (new_weather.negative_stamina_effect > 0 && new_weather.negative_health_effect == 0){
+            show_info("Today is " + new_weather.id + " ,and you don't have a " + new_weather.item_type_needed + " so you lost " + new_weather.negative_stamina_effect + " Stamina")
+        }
+        if (new_weather.negative_stamina_effect == 0 && new_weather.negative_health_effect > 0){
+            show_info("Today is " + new_weather.id + " ,and you don't have a " + new_weather.item_type_needed + " so you lost " + new_weather.negative_health_effect + " Health")
+        }
+        if (new_weather.negative_stamina_effect > 0 && new_weather.negative_health_effect > 0){
+            show_info("Today is " + new_weather.id + " ,and you don't have a " + new_weather.item_type_needed + " so you lost " + new_weather.negative_stamina_effect + " Stamina and " + new_weather.negative_health_effect + " Health")
+        }
+        else{
+            console.log("Nothing to report")
+        }
+        
     }
-    if (!(new_weather.building_needed in buildings)){
-        change_player_health(-new_weather.negative_health_effect);
-        show_info("Today is " + new_weather.id + " And you don't have a " + new_weather.building_needed + " so you lost " + new_weather.negative_health_effect + " Health")
+    else{
+        console.log("You got what you need")
     }
 }
 
+// Updates the player info section for the game
 function update_player_info(){
     var health_percent = (player.health / player.max_health) * 100;
     document.getElementById("health_bar").setAttribute("style",("width: " + health_percent + "%"));
@@ -330,6 +342,8 @@ function load_game(){
     }
 }
 
+// Shows the export game information to the user
+// converts the save game string into BASE64 for the user to copy
 function export_game(){
     var data = {
         player: player,
@@ -346,6 +360,8 @@ function export_game(){
     $('#export_game_modal').modal()
 }
 
+// Shows the save game import modal to the user
+// Calls the import_game function from this modal
 function import_game_modal(){
     $('#import_game_modal').modal()
 }
@@ -353,23 +369,34 @@ function import_game_modal(){
 // Import game data to be played again, needs some validation checking built into it
 // TODO: VALIDATION OF IMPORT
 function import_game(){
+    var import_error = false;
     var user_input = document.getElementById("import_game_data").value;
-    var data = window.atob(user_input);
-    var savegame = JSON.parse(data)
+    try {
+        var data = window.atob(user_input);
+    }
+    catch(err){
+        import_error = true;
+    }
+    if (import_error == false){
+        var savegame = JSON.parse(data)
 
-    if (typeof savegame.player !== "undefined") player = savegame.player;
-    if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
-    if (typeof savegame.day !== "undefined") day = savegame.day;
-    if (typeof savegame.resources !== "undefined") resources = savegame.resources;
-    if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
-    if (typeof savegame.items !== "undefined") items = savegame.items;
-    if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
+        if (typeof savegame.player !== "undefined") player = savegame.player;
+        if (typeof savegame.village_name !== "undefined") village_name = savegame.village_name;
+        if (typeof savegame.day !== "undefined") day = savegame.day;
+        if (typeof savegame.resources !== "undefined") resources = savegame.resources;
+        if (typeof savegame.modifiers !== "undefined") modifiers = savegame.modifiers;
+        if (typeof savegame.items !== "undefined") items = savegame.items;
+        if (typeof savegame.buildings !== "undefined") buildings = savegame.buildings;
 
-    update_village_name(village_name);
-    update_craft_build();
-    update_player_info();
-    update_page();
-    console.log("Loaded Game")
+        update_village_name(village_name);
+        update_craft_build();
+        update_player_info();
+        update_page();
+        console.log("Loaded Game")
+    }
+    else{
+        show_alert("Error Importing", "alert-danger")
+    }
 }
 
 // Remove player save data, warns user before you do this
@@ -387,7 +414,7 @@ function show_faq(){
     $('#faq_modal').modal()
 }
 
-// Show the game over screen
+// Show the game over screen to the user
 function gameover(){
     console.log("Game Over")
     $('#gameover_modal').modal()
@@ -417,8 +444,6 @@ function cheat(){
     resources.stone = 1000;
     update_page();
 }
-
-
 
 // Recurring functions
 setInterval(main, 1000); // Run main every 1 second
