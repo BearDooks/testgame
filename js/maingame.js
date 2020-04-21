@@ -306,7 +306,7 @@ function update_page(){
     document.getElementById("stone_button").innerText = "Gather " +  modifiers.stone + " Stone";
 }
 
-// Used to create a fresh instance of the game
+// Used to create a fresh instance of the game, this is used to go back to square one
 function fresh_game(){
     update_village_name("Unknown Village");
     for (var key in resources) {
@@ -342,6 +342,7 @@ function save_game(){
 }
 
 // Load the game from the browser local storage
+// If there is no file, the game will print an error to the console
 function load_game(){ 
     if (localStorage.getItem("save") === null) {
         console.log("No save game detected")
@@ -460,6 +461,7 @@ function show_info(message,alerttype = "alert-warning") {
     }, 5000);
 }
 
+// Cheat function. Note that this will be removed from the game at some point, and it currently in here for testing
 function cheat(){
     resources.palm = 1000;
     resources.wood = 1000;
@@ -471,4 +473,5 @@ function cheat(){
 setInterval(main, 1000); // Run main every 1 second
 setInterval(save_game,300000); // Run save_game every 5 min
 
+// When the window for the game is loaded, the game will look for a save game file to load
 window.onload = load_game();
