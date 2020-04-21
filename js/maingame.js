@@ -44,7 +44,9 @@ const craftable = [
     {id:"palmbed", item_name:"Palm Bed", item_type:"bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple bed to sleep on" },
     {id:"palmpants", item_name:"Palm Pants", item_type:"pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"Pants made from palm leaves"},
     {id:"palmshirt", item_name:"Palm Shirt", item_type:"shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"A shirt made from palm leaves, protects you from the sun"},
-    {id:"stoneaxe", item_name:"Stone Axe", item_type:"axe", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"An axe made with a stone"},
+    {id:"stoneaxe", item_name:"Stone Axe", item_type:"axe", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"An axe made with a sharpened stone"},
+    {id:"stoneshovel", item_name:"Stone Shovel", item_type:"shovel", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A makeshift shovel, really just a flat rock secured to a stick"},
+    {id:"stonehammer", item_name:"Stone Hammer", item_type:"hammer", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A simple hammer made from a stick and a rock"},
 ]
 
 // List of buildings that can be constructed
@@ -52,6 +54,8 @@ const craftable = [
 const buildable = [
     {id:"leanto", item_name:"Leanto", item_type:"shelter", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple leanto to sleep in, protects you from some weather"},
     {id:"simplecraftbench", item_name:"Simple Craft Bench", item_type:"crafting", palm_cost:0, wood_cost:20, stone_cost:0, previous_item:"none", previous_building:"Leanto", tooltip:"A simple craft bench to make simple tools"},
+    {id:"simplefurnace", item_name:"Simple Furnace", item_type:"furnace", palm_cost:0, wood_cost:20, stone_cost:100, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A furnace you can use to start making bricks"},
+
 ]
 
 // List of different weather that can happen
@@ -135,6 +139,11 @@ function build(item){
         resources.stone = resources.stone - returned.stone_cost;
         buildings[returned.item_name] = 1;
         update_craft_build();
+
+        // Check for special buttons
+        if(item == 'simplefurnace'){
+            console.log("Guess its time to make bricks")
+        }
     }
     else{
         console.log("I did not build it")
@@ -159,6 +168,13 @@ function craft_item(item){
         resources.stone = resources.stone - returned.stone_cost;
         items[returned.item_name] = 1;
         update_craft_build();
+
+        if(returned.item_type == 'axe'){
+            modifiers.wood = modifiers.wood + 1;
+        }
+        if(returned.item_type == 'hammer'){
+            modifiers.stone = modifiers.stone + 1;
+        }
     }
     else{
         console.log("I did not make it")
@@ -167,6 +183,7 @@ function craft_item(item){
 
 // Used to update crafting buttons
 function update_craft_build(){
+    // Update the buttons in the crafting section
     document.getElementById("craft_placeholder").innerHTML = "";
     var returned_array = [];
     for (var i=0; i < craftable.length; i++){
@@ -191,6 +208,7 @@ function update_craft_build(){
         document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=craft_item('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
     }
 
+    // Update the current items you have already crafted by showing them in the list
     document.getElementById("currentitems").innerHTML = ""
     for (var key in items){
         if(key != "none"){
@@ -198,6 +216,7 @@ function update_craft_build(){
         }
     }
 
+    // Update the buttons in the build section
     document.getElementById("build_placeholder").innerHTML = "";
     var returned_array = [];
     for (var i=0; i < buildable.length; i++){
@@ -223,6 +242,7 @@ function update_craft_build(){
         document.getElementById("build_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=build('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
     }
 
+    // Update the list of buildings you have already created
     document.getElementById("currentbuildings").innerHTML = ""
     for (var key in buildings){
         if(key != "none"){
@@ -281,9 +301,12 @@ function update_page(){
     for (var key in resources) {
         document.getElementById(key).innerText = resources[key];
     }
+    document.getElementById("palm_button").innerText = "Gather " +  modifiers.palm + " Palm Leaves";
+    document.getElementById("wood_button").innerText = "Gather " +  modifiers.wood + " Wood";
+    document.getElementById("stone_button").innerText = "Gather " +  modifiers.stone + " Stone";
 }
 
-// Used to create a fresh instance of the game
+// Used to create a fresh instance of the game, this is used to go back to square one
 function fresh_game(){
     update_village_name("Unknown Village");
     for (var key in resources) {
@@ -319,6 +342,7 @@ function save_game(){
 }
 
 // Load the game from the browser local storage
+// If there is no file, the game will print an error to the console
 function load_game(){ 
     if (localStorage.getItem("save") === null) {
         console.log("No save game detected")
@@ -367,7 +391,6 @@ function import_game_modal(){
 }
 
 // Import game data to be played again, needs some validation checking built into it
-// TODO: VALIDATION OF IMPORT
 function import_game(){
     var import_error = false;
     var user_input = document.getElementById("import_game_data").value;
@@ -438,6 +461,7 @@ function show_info(message,alerttype = "alert-warning") {
     }, 5000);
 }
 
+// Cheat function. Note that this will be removed from the game at some point, and it currently in here for testing
 function cheat(){
     resources.palm = 1000;
     resources.wood = 1000;
@@ -449,4 +473,5 @@ function cheat(){
 setInterval(main, 1000); // Run main every 1 second
 setInterval(save_game,300000); // Run save_game every 5 min
 
+// When the window for the game is loaded, the game will look for a save game file to load
 window.onload = load_game();
