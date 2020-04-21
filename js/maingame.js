@@ -44,7 +44,9 @@ const craftable = [
     {id:"palmbed", item_name:"Palm Bed", item_type:"bed", palm_cost:10, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple bed to sleep on" },
     {id:"palmpants", item_name:"Palm Pants", item_type:"pants", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"Pants made from palm leaves"},
     {id:"palmshirt", item_name:"Palm Shirt", item_type:"shirt", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"Palm Bed", previous_building:"none", tooltip:"A shirt made from palm leaves, protects you from the sun"},
-    {id:"stoneaxe", item_name:"Stone Axe", item_type:"axe", palm_cost:5, wood_cost:0, stone_cost:0, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"An axe made with a stone"},
+    {id:"stoneaxe", item_name:"Stone Axe", item_type:"axe", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"An axe made with a sharpened stone"},
+    {id:"stoneshovel", item_name:"Stone Shovel", item_type:"shovel", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A makeshift shovel, really just a flat rock secured to a stick"},
+    {id:"stonehammer", item_name:"Stone Hammer", item_type:"hammer", palm_cost:5, wood_cost:10, stone_cost:5, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A simple hammer made from a stick and a rock"},
 ]
 
 // List of buildings that can be constructed
@@ -367,7 +369,6 @@ function import_game_modal(){
 }
 
 // Import game data to be played again, needs some validation checking built into it
-// TODO: VALIDATION OF IMPORT
 function import_game(){
     var import_error = false;
     var user_input = document.getElementById("import_game_data").value;
