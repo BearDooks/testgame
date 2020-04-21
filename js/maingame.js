@@ -54,6 +54,8 @@ const craftable = [
 const buildable = [
     {id:"leanto", item_name:"Leanto", item_type:"shelter", palm_cost:20, wood_cost:10, stone_cost:0, previous_item:"none", previous_building:"none", tooltip:"A simple leanto to sleep in, protects you from some weather"},
     {id:"simplecraftbench", item_name:"Simple Craft Bench", item_type:"crafting", palm_cost:0, wood_cost:20, stone_cost:0, previous_item:"none", previous_building:"Leanto", tooltip:"A simple craft bench to make simple tools"},
+    {id:"simplefurnace", item_name:"Simple Furnace", item_type:"furnace", palm_cost:0, wood_cost:20, stone_cost:100, previous_item:"none", previous_building:"Simple Craft Bench", tooltip:"A furnace you can use to start making bricks"},
+
 ]
 
 // List of different weather that can happen
@@ -137,6 +139,11 @@ function build(item){
         resources.stone = resources.stone - returned.stone_cost;
         buildings[returned.item_name] = 1;
         update_craft_build();
+
+        // Check for special buttons
+        if(item == 'simplefurnace'){
+            console.log("Guess its time to make bricks")
+        }
     }
     else{
         console.log("I did not build it")
@@ -161,6 +168,13 @@ function craft_item(item){
         resources.stone = resources.stone - returned.stone_cost;
         items[returned.item_name] = 1;
         update_craft_build();
+
+        if(returned.item_type == 'axe'){
+            modifiers.wood = modifiers.wood + 1;
+        }
+        if(returned.item_type == 'hammer'){
+            modifiers.stone = modifiers.stone + 1;
+        }
     }
     else{
         console.log("I did not make it")
@@ -169,6 +183,7 @@ function craft_item(item){
 
 // Used to update crafting buttons
 function update_craft_build(){
+    // Update the buttons in the crafting section
     document.getElementById("craft_placeholder").innerHTML = "";
     var returned_array = [];
     for (var i=0; i < craftable.length; i++){
@@ -193,6 +208,7 @@ function update_craft_build(){
         document.getElementById("craft_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=craft_item('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
     }
 
+    // Update the current items you have already crafted by showing them in the list
     document.getElementById("currentitems").innerHTML = ""
     for (var key in items){
         if(key != "none"){
@@ -200,6 +216,7 @@ function update_craft_build(){
         }
     }
 
+    // Update the buttons in the build section
     document.getElementById("build_placeholder").innerHTML = "";
     var returned_array = [];
     for (var i=0; i < buildable.length; i++){
@@ -225,6 +242,7 @@ function update_craft_build(){
         document.getElementById("build_placeholder").innerHTML += "<button type='button' class='btn btn-info' id=" + item_id + " onclick=build('" + item_id + "') data-toggle='tooltip' data-placement='right' title='" + item_tooltip + "'>" + item_name + " " + item_cost + "</button>";
     }
 
+    // Update the list of buildings you have already created
     document.getElementById("currentbuildings").innerHTML = ""
     for (var key in buildings){
         if(key != "none"){
@@ -283,6 +301,9 @@ function update_page(){
     for (var key in resources) {
         document.getElementById(key).innerText = resources[key];
     }
+    document.getElementById("palm_button").innerText = "Gather " +  modifiers.palm + " Palm Leaves";
+    document.getElementById("wood_button").innerText = "Gather " +  modifiers.wood + " Wood";
+    document.getElementById("stone_button").innerText = "Gather " +  modifiers.stone + " Stone";
 }
 
 // Used to create a fresh instance of the game
